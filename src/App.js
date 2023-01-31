@@ -3,7 +3,7 @@ import Home from './Components/Home';
 import ChatPage from './Components/ChatPage';
 import {io} from 'socket.io-client';
 
-const socket = io('http://localhost:4000');
+const socket = io('https://cineparty.onrender.com/');
 function App() {
   return (
     <BrowserRouter>
