@@ -1,0 +1,7 @@
+.full{
+  
+}
+.videoPlayer{
+  min-width: max(100vw,100vh) ;
+  min-height: min(100vw,100vh);
+}
