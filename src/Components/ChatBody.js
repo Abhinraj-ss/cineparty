@@ -116,7 +116,7 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
       showVideoChat && <VideoChat className="videoChat" myVideo={myVideo} friendVideo={friendVideo} endCall={endCall} socket={socket}/>
     }
       <header className="chat__mainHeader">
-        <p>Hangout with Colleagues</p>
+        <p>It's time to chill !!</p>
         <Form onSubmit={handlePlay}>
         <InputGroup>
           <FormControl
