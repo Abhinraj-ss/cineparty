@@ -1,12 +1,23 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState,useEffect,useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Peer from 'peerjs';
 import VideoPlayer from './extras/VideoPlayer'
+import VideoChat from './VideoChat';
+import './ChatBody.css'
+
 import { Form,InputGroup,FormControl,Button } from 'react-bootstrap';
 
 const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
   const navigate = useNavigate();
   const [showVideoPlayer,setShowVideoPlayer] = useState(false)
+  const [showVideoChat,setShowVideoChat] = useState(false)
   const [link,setLink] = useState()
+  const friendId = localStorage.getItem("friendID")
+  const [peer, setPeer] = useState({});
+  const [call, setCall] = useState({});
+  const [stream,setStream] = useState({})
+  var myVideo = useRef();
+  var friendVideo = useRef();
 
   const handleLeaveChat = () => {
     localStorage.removeItem('userName');
@@ -27,8 +38,83 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
   }, [socket]);
   
 
+  useEffect(() => {
+    const peer = new Peer(localStorage.getItem('userName'));
+    console.log(localStorage.getItem('userName'),friendId)
+    peer.on('open', (id) => {
+      setPeer(peer);
+    });
+
+
+    peer.on('call', (call) => {
+      setShowVideoChat(true)
+      setCall(call)
+      var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+      getUserMedia({ video: true, audio: true }, (stream) => {
+        
+        if (myVideo.current){
+          myVideo.current.srcObject = stream;
+          myVideo.current.play().catch((error) => console.error(error));
+          setStream(stream)
+        }
+        
+        call.answer(stream);
+        
+        call.on('stream', (remoteStream) => {
+          if (friendVideo.current){
+            friendVideo.current.srcObject = remoteStream;
+            friendVideo.current.play().catch((error) => console.error(error));
+          }
+        });
+
+      });
+    });
+
+    return () => {
+      peer.disconnect()
+      peer.destroy();
+    }
+  }, []);
+
+  
+  const videoCall = () => {
+    var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+    getUserMedia({ video: true, audio: true }, (stream) => {
+      
+      if (myVideo.current) {
+        myVideo.current.srcObject = stream;
+        myVideo.current.play().catch((error) => console.error(error));
+        setStream(stream)
+      }
+      const call = peer.call(friendId, stream);
+      setCall(call)
+      call.on('stream', (remoteStream) => {
+        if (friendVideo.current){
+          friendVideo.current.srcObject = remoteStream;
+          friendVideo.current.play().catch((error) => console.error(error));
+        }
+      });
+      
+    });
+  }
+
+  const endCall =() =>{
+    socket.emit('endCall', {
+      command : true
+    })
+    call.close()
+    setShowVideoChat(false)
+  }
+
+
+
   return (
-    <>
+    <div className='chatBody'>  
+    {
+      showVideoChat && <VideoChat className="videoChat" myVideo={myVideo} friendVideo={friendVideo} endCall={endCall} socket={socket}/>
+    }
       <header className="chat__mainHeader">
         <p>Hangout with Colleagues</p>
         <Form onSubmit={handlePlay}>
@@ -42,7 +128,10 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
             <Button type="submit">Play</Button>
         </InputGroup>
       </Form>
-      
+        <Button onClick={()=>{
+          setShowVideoChat(true)
+          videoCall()
+          }} >Video Call</Button>
         <button className="leaveChat__btn" onClick={handleLeaveChat}>
           LEAVE CHAT
         </button>
@@ -67,17 +156,18 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
             </div>
           )
         )}
-
+        
+        {
+          showVideoPlayer && <VideoPlayer link= {link} socket={socket}/>
+        }
+        
+        <div ref={lastMessageRef} />
         {/*This is triggered when a user is typing*/}
         <div className="message__status">
           <p>{typingStatus}</p>
         </div>
-        {
-          showVideoPlayer && <VideoPlayer link= {link} socket={socket}/>
-        }
-        <div ref={lastMessageRef} />
       </div>
-    </>
+    </div>
   );
 };
 

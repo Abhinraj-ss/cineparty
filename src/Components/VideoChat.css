@@ -1,0 +1,26 @@
+
+.videoChat{
+  position: absolute;
+  
+  z-index: 1;
+}
+.friendVideo{
+  width: 500px;
+  height: 600px;
+  border-radius: 2vh;
+  object-fit: cover;
+}
+.endCallBtn{
+  position: absolute;
+  bottom:20px;
+  right: 200px;
+  z-index: 2;
+}
+.myVideo{
+  position: absolute;
+  width: 150px;
+  height: 200px;
+  border-radius: 1vh;
+  object-fit: cover;
+}
+

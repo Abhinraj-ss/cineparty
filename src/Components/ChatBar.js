@@ -4,7 +4,17 @@ const ChatBar = ({socket}) => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    socket.on('newUserResponse', (data) => setUsers(data));
+    socket.on('newUserResponse', (data) => {
+      setUsers(data)
+      data.forEach(user => {
+        if (user.userName !== localStorage.getItem('userName')){
+          localStorage.setItem("friendID",user.userName)
+        }
+      });
+    }
+    );
+    
+    
   }, [socket, users]);
   return (
     <div className="chat__sidebar">
