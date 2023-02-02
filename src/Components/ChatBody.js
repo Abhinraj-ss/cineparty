@@ -117,7 +117,7 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
     }
       <header className="chat__mainHeader">
         <p>It's time to chill !!</p>
-        <Form onSubmit={handlePlay}>
+        <Form className='videoLink' onSubmit={handlePlay}>
         <InputGroup>
           <FormControl
             type="text"
