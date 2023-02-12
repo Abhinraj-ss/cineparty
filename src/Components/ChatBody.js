@@ -1,6 +1,7 @@
 import React, { useState,useEffect,useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Peer from 'peerjs';
+import axios from 'axios';
 import VideoPlayer from './extras/VideoPlayer'
 import VideoChat from './VideoChat';
 import './ChatBody.css'
@@ -18,6 +19,9 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
   const [stream,setStream] = useState({})
   var myVideo = useRef();
   var friendVideo = useRef();
+  const DROPBOX_ACCESS_TOKEN = 'sl.BYvBslHZFwedjnj4Kno2UFqaXQWJxvpDzISuEAwyK1fl9ZSzlQqiBrC3VFbG2PtvhJ0AcBFBG8xpGfHgA7XWbLXgAFub-9c8E3dEg92S1B1VFrJKa0jTWIvpKN-aB2mocC-vNlg6QpI'
+
+  const [movieTime, setMovieTime] = useState(null);
 
   const handleLeaveChat = () => {
     localStorage.removeItem('userName');
@@ -44,7 +48,6 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
     peer.on('open', (id) => {
       setPeer(peer);
     });
-
 
     peer.on('call', (call) => {
       setShowVideoChat(true)
@@ -108,7 +111,32 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
     setShowVideoChat(false)
   }
 
-
+  useEffect(() => {
+    async function fetchData(){
+      var config = {
+        method: 'post',
+        url: 'https://content.dropboxapi.com/2/files/download',
+        headers: { 
+          'Dropbox-API-Arg': '{"path":"/Human Feeding The Little Squirrel.mp4"}',
+          'Authorization': `Bearer ${DROPBOX_ACCESS_TOKEN}`
+        },
+        responseType: 'arraybuffer'
+      };
+      try {
+        const response = await axios(config)
+        console.log(response.data)
+        const videoArrayBuffer = response.data;
+        const videoBlob = new Blob([videoArrayBuffer], { type: 'video/mp4' });
+        const videoUrl = URL.createObjectURL(videoBlob);
+        setLink(videoUrl);
+        setShowVideoPlayer(true)
+      } catch (error) {
+        console.error(error);
+      }
+    
+    }
+    fetchData()
+  }, [setMovieTime])
 
   return (
     <div className='chatBody'>  
@@ -116,7 +144,7 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
       showVideoChat && <VideoChat className="videoChat" myVideo={myVideo} friendVideo={friendVideo} endCall={endCall} socket={socket}/>
     }
       <header className="chat__mainHeader">
-        <p>It's time to chill !!</p>
+      <Button onClick={()=>setMovieTime(true)}>Movie time</Button>
         <Form className='videoLink' onSubmit={handlePlay}>
         <InputGroup>
           <FormControl
