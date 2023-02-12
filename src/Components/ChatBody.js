@@ -19,7 +19,7 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
   const [stream,setStream] = useState({})
   var myVideo = useRef();
   var friendVideo = useRef();
-  const DROPBOX_ACCESS_TOKEN = 'sl.BYt72GE9hwzBohgbPUkKff_8Rz_RoS37iCM7uP1MJvYJ1H0f69m3FXnyY3wxd9jDCJ5MvzSPRndKVEvq1HTTtlgnCUnjQfRHVBYBeE58cPqAkx4MI0Ii4XcyPGbaUD-bkk6sKJaab6Q'
+  const DROPBOX_ACCESS_TOKEN = 'sl.BYvPRl2_YI9GxDL4XuFDtQHFC-7Gma3-PsGjVC3B4pgpWXbtrqtU5V_wfv0wltmJMPnKu0gyGSPzg7Pua38tae-h1kUJZxRa5Ss9LMKXUqGUyL2UseZg3De1Q7C1JBGsVk2J6ZH7lAM'
 
   const [movieTime, setMovieTime] = useState(null);
 
