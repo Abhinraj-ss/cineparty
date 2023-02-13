@@ -132,6 +132,13 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
         setShowVideoPlayer(true)
       } catch (error) {
         console.error(error);
+        if (error.response.status === 401) {
+          // Handle unauthorized error by redirecting to the authorization endpoint
+          window.location.href = 'https://www.dropbox.com/oauth2/authorize';
+        } else {
+          // Handle other errors
+        }
+        
       }
     
     }
