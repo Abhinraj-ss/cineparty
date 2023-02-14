@@ -20,7 +20,7 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
   var myVideo = useRef();
   var friendVideo = useRef();
   const DROPBOX_ACCESS_TOKEN = 'sl.BYvPRl2_YI9GxDL4XuFDtQHFC-7Gma3-PsGjVC3B4pgpWXbtrqtU5V_wfv0wltmJMPnKu0gyGSPzg7Pua38tae-h1kUJZxRa5Ss9LMKXUqGUyL2UseZg3De1Q7C1JBGsVk2J6ZH7lAM'
-
+  const APP_KEY = 'hrzjse113o2bbdj'
   const [movieTime, setMovieTime] = useState(null);
 
   const handleLeaveChat = () => {
@@ -134,7 +134,7 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
         console.error(error);
         if (error.response.status === 401) {
           // Handle unauthorized error by redirecting to the authorization endpoint
-          window.location.href = 'https://www.dropbox.com/oauth2/authorize';
+          window.location.href = `https://www.dropbox.com/oauth2/authorize?client_id=${APP_KEY}&response_type=401`;
         } else {
           // Handle other errors
         }
