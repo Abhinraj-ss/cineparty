@@ -134,7 +134,7 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
         console.error(error);
         if (error.response.status === 401) {
           // Handle unauthorized error by redirecting to the authorization endpoint
-          window.location.href = `https://www.dropbox.com/oauth2/authorize?client_id=${APP_KEY}&response_type=401`;
+          window.location.href = `https://www.dropbox.com/oauth2/authorize?client_id=${APP_KEY}&response_type=code`;
         } else {
           // Handle other errors
         }
