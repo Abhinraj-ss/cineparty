@@ -19,9 +19,10 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
   const [stream,setStream] = useState({})
   var myVideo = useRef();
   var friendVideo = useRef();
-  const DROPBOX_ACCESS_TOKEN = 'sl.BYvPRl2_YI9GxDL4XuFDtQHFC-7Gma3-PsGjVC3B4pgpWXbtrqtU5V_wfv0wltmJMPnKu0gyGSPzg7Pua38tae-h1kUJZxRa5Ss9LMKXUqGUyL2UseZg3De1Q7C1JBGsVk2J6ZH7lAM'
-  const APP_KEY = 'hrzjse113o2bbdj'
-  const [movieTime, setMovieTime] = useState(null);
+  const [auth,setAuth] = useState()
+  const redirectUri = 'http://localhost:3000/chat';
+  const clientId = 'hrzjse113o2bbdj';
+  const [videoData, setVideoData] = useState(null);
 
   const handleLeaveChat = () => {
     localStorage.removeItem('userName');
@@ -111,39 +112,52 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
     setShowVideoChat(false)
   }
 
-  useEffect(() => {
-    async function fetchData(){
-      var config = {
-        method: 'post',
-        url: 'https://content.dropboxapi.com/2/files/download',
-        headers: { 
-          'Dropbox-API-Arg': '{"path":"/Human Feeding The Little Squirrel.mp4"}',
-          'Authorization': `Bearer ${DROPBOX_ACCESS_TOKEN}`
-        },
-        responseType: 'arraybuffer'
-      };
-      try {
-        const response = await axios(config)
-        console.log(response.data)
-        const videoArrayBuffer = response.data;
-        const videoBlob = new Blob([videoArrayBuffer], { type: 'video/mp4' });
-        const videoUrl = URL.createObjectURL(videoBlob);
-        setLink(videoUrl);
-        setShowVideoPlayer(true)
-      } catch (error) {
-        console.error(error);
-        if (error.response.status === 401) {
-          // Handle unauthorized error by redirecting to the authorization endpoint
-          window.location.href = `https://www.dropbox.com/oauth2/authorize?client_id=${APP_KEY}&response_type=code`;
-        } else {
-          // Handle other errors
-        }
-        
-      }
-    
+  const authorize = () => {
+    window.location.href = `https://www.dropbox.com/oauth2/authorize?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}`;
+    console.log("auth")
+    setAuth(true)
+  };
+  const fetchData= async(accessToken)=>{
+    console.log(accessToken)
+    var config = {
+      method: 'post',
+      url: 'https://content.dropboxapi.com/2/files/download',
+      headers: { 
+        'Dropbox-API-Arg': '{"path":"/Human Feeding The Little Squirrel.mp4"}',
+        'Authorization': `Bearer ${accessToken}`
+      },
+      responseType: 'arraybuffer'
+    };
+    try {
+      const response = await axios(config)
+      console.log(response.data)
+      const videoArrayBuffer = response.data;
+      const videoBlob = new Blob([videoArrayBuffer], { type: 'video/mp4' });
+      const videoUrl = URL.createObjectURL(videoBlob);
+      setLink(videoUrl)
+      setShowVideoPlayer(true)
+      setVideoData(videoUrl);
+    } catch (error) {
+      console.error(error);
     }
-    fetchData()
-  }, [setMovieTime])
+  
+  }
+const handleCallback = () => {
+  const queryString = window.location.hash.substring(1);
+  const params = new URLSearchParams(queryString);
+  const accessToken = params.get('access_token');
+
+  console.log('Authorization Token:', accessToken);
+  fetchData(accessToken)
+  // Use the accessToken to make API requests
+};
+
+useEffect(() => {
+  if (window.location.hash.substring(1)) {
+    console.log(window.location.hash.substring(1))
+    handleCallback();
+  }
+}, [auth])
 
   return (
     <div className='chatBody'>  
@@ -151,7 +165,7 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
       showVideoChat && <VideoChat className="videoChat" myVideo={myVideo} friendVideo={friendVideo} endCall={endCall} socket={socket}/>
     }
       <header className="chat__mainHeader">
-      <Button onClick={()=>setMovieTime(true)}>Movie time</Button>
+      <Button onClick={authorize}>Movie time</Button>
         <Form className='videoLink' onSubmit={handlePlay}>
         <InputGroup>
           <FormControl
