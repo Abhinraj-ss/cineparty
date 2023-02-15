@@ -4,10 +4,9 @@ import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import './VideoPlayer.css'
 
 const VideoPlayer = ({link,socket}) => {
+  const driveUrl ='https://drive.google.com/uc?export=view&id=1X-rhDXcdaVqBGm6tHnD-6eiCHM4NlUB2/'
+  const [url, setUrl] = useState('https://drive.google.com/uc?export=view&id=1X-rhDXcdaVqBGm6tHnD-6eiCHM4NlUB2/');
   
-  const driveUrl ='https://drive.google.com/file/d/1UCUtutHp1sMxjn8qHSh7ZnpEOEPY3hvF/view?usp=share_link'
-  //const [url, setUrl] = useState("https://www.youtube.com/watch?v=fbzkEy5Eqfs");
-  const [url, setUrl] = useState(link);
   const [playing, setPlaying] = useState(false);
   const [volume, setVolume] = useState(0.8);
   const [played, setPlayed] = useState(0);
@@ -54,7 +53,6 @@ const VideoPlayer = ({link,socket}) => {
   }
 
   const playerRef = React.useRef(null);
-
 
   useEffect(() => {
     socket.emit('play/pause', {

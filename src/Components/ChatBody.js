@@ -19,10 +19,6 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
   const [stream,setStream] = useState({})
   var myVideo = useRef();
   var friendVideo = useRef();
-  const [auth,setAuth] = useState()
-  const redirectUri = 'http://localhost:3000/chat';
-  const clientId = 'hrzjse113o2bbdj';
-  const [videoData, setVideoData] = useState(null);
 
   const handleLeaveChat = () => {
     localStorage.removeItem('userName');
@@ -111,61 +107,26 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
     call.close()
     setShowVideoChat(false)
   }
+  const getDriveFileIdFromUrl = (url)=> {
+    const regExp = /\/d\/([a-zA-Z0-9-_]+)/;
+    const match = url.match(regExp);
+    return match ? match[1] : null;
+  }
 
-  const authorize = () => {
-    window.location.href = `https://www.dropbox.com/oauth2/authorize?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}`;
-    console.log("auth")
-    setAuth(true)
-  };
-  const fetchData= async(accessToken)=>{
-    console.log(accessToken)
-    var config = {
-      method: 'post',
-      url: 'https://content.dropboxapi.com/2/files/download',
-      headers: { 
-        'Dropbox-API-Arg': '{"path":"/Human Feeding The Little Squirrel.mp4"}',
-        'Authorization': `Bearer ${accessToken}`
-      },
-      responseType: 'arraybuffer'
-    };
-    try {
-      const response = await axios(config)
-      console.log(response.data)
-      const videoArrayBuffer = response.data;
-      const videoBlob = new Blob([videoArrayBuffer], { type: 'video/mp4' });
-      const videoUrl = URL.createObjectURL(videoBlob);
-      setLink(videoUrl)
-      setShowVideoPlayer(true)
-      setVideoData(videoUrl);
-    } catch (error) {
-      console.error(error);
+  const processLink =()=>{
+    console.log("myrr",link)
+    if  (link.includes("drive.google.com")){
+      let id = getDriveFileIdFromUrl(link)
+      console.log(id)
+      setLink('https://drive.google.com/uc?export=view&id='.concat(id))
     }
-  
   }
-const handleCallback = () => {
-  const queryString = window.location.hash.substring(1);
-  const params = new URLSearchParams(queryString);
-  const accessToken = params.get('access_token');
-
-  console.log('Authorization Token:', accessToken);
-  fetchData(accessToken)
-  // Use the accessToken to make API requests
-};
-
-useEffect(() => {
-  if (window.location.hash.substring(1)) {
-    console.log(window.location.hash.substring(1))
-    handleCallback();
-  }
-}, [auth])
-
   return (
     <div className='chatBody'>  
     {
       showVideoChat && <VideoChat className="videoChat" myVideo={myVideo} friendVideo={friendVideo} endCall={endCall} socket={socket}/>
     }
       <header className="chat__mainHeader">
-      <Button onClick={authorize}>Movie time</Button>
         <Form className='videoLink' onSubmit={handlePlay}>
         <InputGroup>
           <FormControl
@@ -174,7 +135,7 @@ useEffect(() => {
             onChange={(e)=>setLink(e.target.value)}
             required
           />
-            <Button type="submit">Play</Button>
+            <Button type="submit" onClick={processLink}>Play</Button>
         </InputGroup>
       </Form>
         <Button onClick={()=>{
