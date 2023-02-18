@@ -118,7 +118,8 @@ const ChatBody = ({messages,lastMessageRef ,typingStatus,socket}) => {
     if  (link.includes("drive.google.com")){
       let id = getDriveFileIdFromUrl(link)
       console.log(id)
-      setLink('https://drive.google.com/uc?export=view&id='.concat(id))
+      //setLink('https://drive.google.com/uc?export=view&confirm=yTib&id='.concat(id))
+      setLink(("https://www.googleapis.com/drive/v3/files/".concat(id)).concat("/?key=AIzaSyB1RNvOueLiCPCTZAr33U5GbvFPK39ByxQ&alt=media"))
     }
   }
   return (
